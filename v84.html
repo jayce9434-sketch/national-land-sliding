@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#101820" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NLS" />
+  <title>National Land Sliding (NLS)</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+  <style>
+:root{--bg:#f4f5f6;--panel:#fff;--ink:#111820;--muted:#66717c;--line:#d9dee3;--accent:#172f45;--danger:#b90000;--shadow:0 8px 24px rgba(0,0,0,.08)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}button,input,select,textarea{font:inherit}
+.topbar{height:72px;background:#101820;color:white;display:flex;align-items:center;justify-content:space-between;padding:10px max(14px,calc((100vw - 1200px)/2));position:sticky;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.22)}
+.brand{display:flex;align-items:center;gap:11px}.brand img{width:46px;height:46px;border-radius:12px}.brand div{display:flex;flex-direction:column}.brand strong{font-size:18px}.brand span{font-size:11px;opacity:.75}
+.menu-btn{display:none;background:none;border:1px solid #ffffff44;color:#fff;border-radius:8px;font-size:22px;padding:5px 10px}
+.nav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow:auto;position:sticky;top:72px;z-index:900;padding:7px max(10px,calc((100vw - 1200px)/2))}
+.nav button{white-space:nowrap;border:0;background:transparent;padding:10px 12px;border-radius:7px}.nav button.active{background:#e8edf2;font-weight:700}
+main{max-width:1200px;margin:auto;padding:20px 14px 60px}.page{display:none}.page.active{display:block}
+h1{font-size:clamp(28px,5vw,50px);line-height:1.05;margin:5px 0 14px}h2{margin:20px 0 10px}.eyebrow{font-size:12px;letter-spacing:.12em;font-weight:800;color:#526271}
+.hero{background:linear-gradient(145deg,#fff,#edf1f5);border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;grid-template-columns:1.6fr .7fr;gap:20px;align-items:center;box-shadow:var(--shadow)}.hero p{font-size:18px;max-width:700px;color:#4f5c68}
+.hero-actions,.split,.filters,.map-toolbar,.local-search{display:flex;gap:9px;flex-wrap:wrap}.primary{background:#183c5a!important;color:white!important;border-color:#183c5a!important}
+button{cursor:pointer;border:1px solid #bbc4cc;background:#fff;color:#1a242e;border-radius:8px;padding:10px 13px;font-weight:650}
+.status-card{background:#101820;color:#fff;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px}.status-dot{width:10px;height:10px;background:#36cf6c;border-radius:50%;box-shadow:0 0 0 5px #36cf6c22}.status-card small{opacity:.7}
+.notice{margin:16px 0;background:#fff6cc;border-left:5px solid #e6b800;padding:14px;border-radius:7px}.muted{color:var(--muted)}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 3px 10px rgba(0,0,0,.035)}.card h3{margin:5px 0 7px}.card p{margin:5px 0;color:#4e5a65}.meta{font-size:12px;color:var(--muted)}
+.alert-card{border-top-width:7px}.alert-card.watch{border-top-color:#d69e00}.alert-card.warning{border-top-color:#d32323}.alert-card.emergency{border-top-color:#6f1098;background:#fff7ff}.product-title{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;font-weight:900}
+.day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.day-card{background:#fff;border:1px solid var(--line);padding:14px;border-radius:12px}.prob{font-size:32px;font-weight:900}
+.map{height:560px;border:1px solid #aeb7c0;border-radius:12px;overflow:hidden;background:#dfe5ea}.map.small{height:380px}.map-toolbar{margin-bottom:10px}.legend,.outlook-legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.legend span{background:#fff;border:1px solid var(--line);padding:6px 8px;border-radius:6px;font-size:12px}.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);margin-right:5px}
+.risk{padding:6px 9px;border-radius:5px;border:1px solid #999;font-weight:800}.r5{background:#d9f5d9}.r10{background:#8ae68a}.r20{background:#ffe56c}.r30{background:#ffb13b}.r50{background:#ff6a55}.r70{background:#e74de0}.r90{background:#7c42c9;color:white}
+.segmented{display:flex;margin:10px 0}.segmented button{border-radius:0}.segmented button:first-child{border-radius:8px 0 0 8px}.segmented button:last-child{border-radius:0 8px 8px 0}.segmented .active{background:#172f45;color:#fff}
+.filters{margin:10px 0}.filters>*{min-width:180px;flex:1}.event-list{display:grid;gap:10px}.event-row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center}.al-badge{font-size:22px;font-weight:1000;text-align:center;padding:12px 5px;border-radius:9px;color:#111;border:2px solid #1113}
+.al0{background:#e4e7ea}.al1{background:#b7dcff}.al2{background:#9be1ac}.al3{background:#ffe46b}.al4{background:#ffb74d}.al5{background:#ff6b61}.al6{background:#c46bdd;color:#fff}.al7{background:#19358a;color:#fff}
+.scale-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.scale-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.scale-card header{padding:10px 13px;font-size:22px;font-weight:950}.scale-card div{padding:12px}.scale-card ul{padding-left:20px;color:#4a5660}
+input,select,textarea{background:#fff;border:1px solid #b8c0c7;border-radius:8px;padding:10px;color:#111;width:100%}textarea{min-height:90px}.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;margin:12px 0}.admin-panel>*{margin:5px 0}.admin-panel .split>*{flex:1;min-width:140px}.hidden{display:none!important}
+.local-title{font-size:24px;font-weight:800;margin:20px 0 10px}.hourly{display:flex;gap:8px;overflow:auto;padding-bottom:6px}.hour-block{min-width:95px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}.hour-block b{font-size:25px;display:block}
+.media-links a{display:inline-block;margin:4px 5px 0 0}footer{background:#101820;color:#fff;padding:25px max(14px,calc((100vw - 1200px)/2));display:flex;justify-content:space-between;gap:10px}footer span{opacity:.7}
+@media(max-width:760px){.menu-btn{display:block}.nav{display:none;position:fixed;top:72px;left:0;right:0;flex-direction:column;max-height:calc(100vh - 72px);overflow:auto;box-shadow:0 8px 20px #0003}.nav.open{display:flex}.nav button{text-align:left}.hero{grid-template-columns:1fr;padding:18px}.day-grid{grid-template-columns:1fr}.admin-grid{grid-template-columns:1fr}.map{height:58vh;min-height:410px}.event-row{grid-template-columns:74px 1fr}.event-row>div:last-child{grid-column:2}.brand strong{font-size:16px}.brand span{max-width:210px}.section-head{align-items:flex-end}footer{flex-direction:column}}
+
+.source-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.source-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:5px}
+.source-card span{font-weight:750}.source-card small{color:var(--muted)}
+.map-stats{display:flex;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:8px;font-size:13px}
+.toggle{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #bbc4cc;border-radius:8px;padding:8px 10px;font-weight:650}
+.toggle input{width:auto;margin:0}
+.source-pill{display:inline-block;padding:3px 7px;border-radius:999px;background:#edf2f6;font-size:11px;font-weight:750;margin-right:5px}
+.confidence{display:inline-block;padding:3px 7px;border-radius:999px;background:#f3f3f3;border:1px solid #ddd;font-size:11px}
+.auto-card{border-left:6px solid var(--risk,#999)}
+.event-source-row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:80px 1fr;gap:12px}
+.event-source-row .source-icon{font-size:11px;font-weight:900;padding:8px;border-radius:8px;background:#edf2f6;text-align:center;height:max-content}
+@media(max-width:760px){.source-grid{grid-template-columns:1fr 1fr}.map-stats{flex-direction:column}.source-card{min-height:105px}}
+
+.rating-helper{background:#eef6ff;border:1px solid #9dc7ef;border-left:6px solid #2878ba;border-radius:10px;padding:12px;margin:10px 0}
+.rating-helper>div{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.rating-helper span{font-weight:800}
+.rate-source-btn{margin-top:5px;background:#183c5a;color:white;border-color:#183c5a}
+.day-card small{display:block;margin-top:6px;color:var(--muted)}
+
+.advanced-evidence{margin:10px 0;border:1px solid var(--line);border-radius:10px;background:#fafbfc;padding:10px}
+.advanced-evidence summary{cursor:pointer;font-weight:800}
+.advanced-evidence[open] summary{margin-bottom:8px}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="icon-192.png" alt="NLS icon" />
+    <div><strong>National Land Sliding</strong><span>NLS • Landslide & Avalanche Center</span></div>
+  </div>
+  <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
+</header>
+
+<nav id="nav" class="nav">
+  <button data-page="home" class="active">Home</button>
+  <button data-page="map">Live Map</button>
+  <button data-page="outlooks">1–3 Day Outlook</button>
+  <button data-page="alerts">Alerts</button>
+  <button data-page="events">All Events</button>
+  <button data-page="scale">AL Scale</button>
+  <button data-page="local">Local</button>
+  <button data-page="admin">Owner</button>
+</nav>
+
+<main>
+<section id="home" class="page active">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">GLOBAL • U.S.-PRIORITY</div>
+      <h1>National Land Sliding</h1>
+      <p>Live landslide and avalanche awareness, NLS outlooks, public event ratings, source links and owner-issued hazard products.</p>
+      <div class="hero-actions">
+        <button data-go="map" class="primary">Open Live Map</button>
+        <button data-go="local">Check My Area</button>
+      </div>
+    </div>
+    <div class="status-card">
+      <span class="status-dot"></span>
+      <b>Automatic updates enabled</b>
+      <small id="lastUpdate">Waiting for first refresh…</small>
+    </div>
+  </div>
+
+  <div class="notice">
+    <b>Important:</b> NLS products and AL ratings are independent/community products, not official government warnings.
+    Always follow local emergency management and official weather/geologic agencies.
+  </div>
+  <div class="source-grid">
+    <div class="source-card"><b>NASA COOLR</b><span id="coolrStatus">Loading landslide history…</span><small>Global reported landslide catalog</small></div>
+    <div class="source-card"><b>NASA LHASA</b><span id="lhasaStatus">Loading hazard guidance…</span><small>Near-real-time landslide hazard/exposure</small></div>
+    <div class="source-card"><b>NLS Database</b><span id="nlsStatus">Checking…</span><small>Owner-rated AL events and products</small></div>
+    <div class="source-card"><b>Avalanche Coverage</b><span>Owner/imported records</span><small>Public unrestricted global avalanche API unavailable</small></div>
+  </div>
+
+  <div class="section-head"><h2>Active NLS Alerts</h2><button data-go="alerts">View all</button></div>
+  <div id="homeAlerts" class="cards"></div>
+
+  <div class="section-head"><h2>Latest Rated Events</h2><button data-go="events">View archive</button></div>
+  <div id="latestEvents" class="cards"></div>
+
+  <div class="section-head">
+    <div><div class="eyebrow">AUTOMATIC LOCAL GUIDANCE</div><h2>Day 1–3 Outlook</h2></div>
+    <button data-go="outlooks" class="primary">View Automatic Outlook</button>
+  </div>
+  <p class="muted" id="homeOutlookHint">NLS builds this automatically. If location permission is available, it personalizes the outlook to your area; otherwise it still shows global NASA guidance.</p>
+  <div id="dayCards" class="day-grid"></div>
+</section>
+
+<section id="map" class="page">
+  <div class="section-head"><div><div class="eyebrow">NLS EVENT-INTENSITY MAP</div><h1>Live Landslide + Avalanche Map</h1></div></div>
+  <div class="map-toolbar">
+    <select id="hazardFilter"><option value="all">All hazards</option><option value="landslide">Landslides</option><option value="avalanche">Avalanches</option></select>
+    <select id="timeFilter"><option value="24">Past 24 hours</option><option value="168">Past 7 days</option><option value="720">Past 30 days</option><option value="8760">Past year</option><option value="all" selected>All loaded history</option></select>
+    <label class="toggle"><input id="showCoolr" type="checkbox" checked /> NASA reports</label>
+    <label class="toggle"><input id="showLhasa" type="checkbox" checked /> LHASA guidance</label>
+    <button id="locateBtn">◎ My Location</button>
+    <button id="refreshBtn">↻ Refresh</button>
+  </div>
+  <div class="map-stats"><b id="mapCount">0 events shown</b><span id="historyStatus">Loading history…</span></div>
+  <div id="mainMap" class="map"></div>
+  <div class="legend">
+    <span><i style="--c:#8c8c8c"></i>Very weak</span><span><i style="--c:#2684ff"></i>Weak</span>
+    <span><i style="--c:#36b55c"></i>Low</span><span><i style="--c:#ffd33d"></i>Average</span>
+    <span><i style="--c:#ff8c24"></i>Mid</span><span><i style="--c:#e33131"></i>High</span>
+    <span><i style="--c:#9a46d1"></i>Severe</span><span><i style="--c:#102d8c"></i>Extreme</span>
+  </div>
+  <p class="muted">This is an NLS event/intensity visualization, not meteorological radar. Automatic NASA reports and owner-rated NLS events can appear together.</p>
+</section>
+
+<section id="outlooks" class="page">
+  <div class="section-head"><div><div class="eyebrow">AUTOMATIC NLS HAZARD GUIDANCE</div><h1>Days 1–3</h1></div></div>
+  <div class="notice"><b>Automatic.</b> You do not build this outlook. NLS loads NASA LHASA guidance automatically and, when location is available, creates a local Day 1–3 experimental signal from forecast rain/snow conditions. Manual polygons are optional overrides only.</div>
+  <div class="local-search"><input id="outlookPlaceInput" placeholder="Optional: search another town, county, state or country" /><button id="outlookPlaceSearch">View Another Area</button><button id="outlookGps">Use My Area</button></div>
+  <div class="segmented" id="dayPicker"><button class="active" data-day="1">Day 1</button><button data-day="2">Day 2</button><button data-day="3">Day 3</button></div>
+  <div id="outlookMap" class="map"></div>
+  <div class="outlook-legend">
+    <span class="risk r5">5%</span><span class="risk r10">10%</span><span class="risk r20">20%</span><span class="risk r30">30%</span><span class="risk r50">50%</span><span class="risk r70">70%</span><span class="risk r90">90%</span>
+  </div>
+  <div id="autoOutlookSummary" class="cards"></div>
+  <h2>Owner Overrides <small class="muted">(optional)</small></h2>
+  <div id="outlookDetails" class="cards"></div>
+</section>
+
+<section id="alerts" class="page">
+  <div class="eyebrow">NLS PRODUCTS</div><h1>Watches, Warnings & Emergencies</h1>
+  <p class="muted">Emergency = exceptionally serious NLS product for high-end potential/occurrence threatening a populated area. It is not an official government emergency alert.</p>
+  <div id="alertsList" class="cards"></div>
+</section>
+
+<section id="events" class="page">
+  <div class="section-head"><div><div class="eyebrow">PUBLIC + SOURCE ARCHIVE</div><h1>Event Explorer</h1></div></div>
+  <div class="notice"><b>Coverage:</b> NLS loads a large paginated history from NASA COOLR for landslides plus owner-rated NLS records. “Every event” can never literally mean every landslide/avalanche on Earth because many events are never reported and avalanche databases are fragmented.</div>
+  <div class="filters">
+    <input id="eventSearch" placeholder="Search town, county, state, country…" />
+    <select id="eventType"><option value="all">All types</option><option value="landslide">Landslides</option><option value="avalanche">Avalanches</option></select>
+    <select id="eventAL"><option value="all">All ratings</option><option>AL-0</option><option>AL-1</option><option>AL-2</option><option>AL-3</option><option>AL-4</option><option>AL-5</option><option>AL-6</option><option>AL-7</option></select>
+  </div>
+  <div id="eventList" class="event-list"></div>
+</section>
+
+<section id="scale" class="page">
+  <div class="eyebrow">NLS RATING SYSTEM</div><h1>AL-0 → AL-7 Scale</h1>
+  <p>The AL scale is an NLS impact/severity rating for <b>both avalanches and landslides</b>. Ratings should consider size, speed, runout, structures/roads hit, injuries/fatalities, population exposure, displacement, rescue impact, infrastructure damage and source confidence.</p>
+  <div id="scaleGrid" class="scale-grid"></div>
+  <div class="notice"><b>Rating rule:</b> Only the authenticated NLS owner account can publish or change an AL rating. Visitors have public read-only access.</div>
+  <div class="admin-panel">
+    <h2>NLS Rating Evidence Checklist</h2>
+    <p>Before assigning a high AL rating, compare <b>physical intensity</b> and <b>real-world impact</b>. A huge remote slide may be physically extreme but have low human impact; a smaller event in a populated area may deserve a higher impact rating. NLS keeps the evidence visible so ratings can be reviewed later.</p>
+  </div>
+</section>
+
+<section id="local" class="page">
+  <div class="eyebrow">AREA DASHBOARD</div><h1>Your Area</h1>
+  <div class="local-search"><input id="placeInput" placeholder="Town, county, state or country" /><button id="placeSearch" class="primary">Search</button><button id="useGps">Use GPS</button></div>
+  <div id="localTitle" class="local-title">Choose an area</div>
+  <div id="probabilityChart" class="hourly"></div>
+  <h2>Nearby Events</h2><div id="nearbyEvents" class="cards"></div>
+</section>
+
+<section id="admin" class="page">
+  <div class="eyebrow">OWNER CONTROL CENTER</div><h1>NLS Admin</h1>
+  <div id="authBox" class="admin-panel">
+    <p>Sign in using the email account you configure as the NLS owner.</p>
+    <input id="adminEmail" type="email" placeholder="Owner email" /><button id="loginBtn" class="primary">Send magic sign-in link</button>
+    <small id="authMsg"></small>
+  </div>
+  <div id="adminControls" class="hidden">
+    <div class="admin-grid">
+      <form id="eventForm" class="admin-panel">
+        <h2>Rate / Add Event</h2>
+        <select name="hazard_type"><option value="landslide">Landslide</option><option value="avalanche">Avalanche</option></select>
+        <input name="title" required placeholder="Event title" />
+        <input name="location_name" required placeholder="Town / county / area" />
+        <div class="split"><input name="state_region" placeholder="State / region" /><input name="country" value="United States" placeholder="Country" /></div>
+        <div class="split"><input name="lat" type="number" step="any" required placeholder="Latitude" /><input name="lon" type="number" step="any" required placeholder="Longitude" /></div>
+        <div id="ratingHelper" class="rating-helper">
+          <div><b>NLS Quick Rating</b><span id="ratingSuggestion">Choose a source event and NLS will fill what it knows.</span></div>
+          <small>You do NOT need to know every injury, burial, speed, mass, or runout. Unknown information stays unknown.</small>
+        </div>
+
+        <label><b>Your final AL rating</b></label>
+        <select name="al_rating"><option>AL-0</option><option>AL-1</option><option>AL-2</option><option>AL-3</option><option>AL-4</option><option>AL-5</option><option>AL-6</option><option>AL-7</option></select>
+
+        <textarea name="rating_notes" placeholder="Optional note: why you chose this rating"></textarea>
+        <input name="source_url" type="url" placeholder="Primary source URL (auto-filled when available)" />
+        <textarea name="media_urls" placeholder="Photo/video links (auto-filled when available)"></textarea>
+
+        <details class="advanced-evidence">
+          <summary>Advanced evidence (optional)</summary>
+          <p class="muted">Only use these if the source actually reports them. Leaving them blank is correct when unknown.</p>
+          <div class="split"><input name="estimated_volume" placeholder="Volume" /><input name="estimated_mass" placeholder="Mass" /></div>
+          <div class="split"><input name="speed" placeholder="Speed" /><input name="runout_distance" placeholder="Runout" /></div>
+          <div class="split"><input name="vertical_drop" placeholder="Vertical drop" /><input name="width" placeholder="Width / area" /></div>
+          <div class="split"><input name="slope_angle" placeholder="Slope angle" /><input name="depth" placeholder="Depth" /></div>
+          <input name="estimated_energy" placeholder="Estimated energy" />
+          <div class="split"><input name="fatalities" type="number" min="0" placeholder="Fatalities if reported" /><input name="injuries" type="number" min="0" placeholder="Injuries if reported" /></div>
+          <div class="split"><input name="people_exposed" type="number" min="0" placeholder="People exposed if reported" /><input name="evacuated" type="number" min="0" placeholder="Evacuated if reported" /></div>
+          <div class="split"><input name="rescued" type="number" min="0" placeholder="Rescued if reported" /><input name="buried" type="number" min="0" placeholder="Buried/trapped if reported" /></div>
+          <input name="structures" placeholder="Structures / roads / rail / utilities affected" />
+          <input name="trigger" placeholder="Trigger if known" />
+          <input name="avalanche_details" placeholder="Avalanche-specific details if known" />
+          <input name="landslide_details" placeholder="Landslide-specific details if known" />
+          <div class="split">
+            <select name="confidence"><option value="low">Low confidence</option><option value="medium" selected>Medium confidence</option><option value="high">High confidence</option><option value="verified">Verified / multiple strong sources</option></select>
+            <input name="source_count" type="number" min="0" value="1" placeholder="Source count" />
+          </div>
+        </details>
+        <button class="primary">Publish Event</button><small class="form-status"></small>
+      </form>
+
+      <form id="alertForm" class="admin-panel">
+        <h2>Issue NLS Alert</h2>
+        <select name="product"><option>NLS Avalanche Watch</option><option>NLS Avalanche Warning</option><option>NLS Avalanche Emergency</option><option>NLS Landslide Watch</option><option>NLS Landslide Warning</option><option>NLS Landslide Emergency</option></select>
+        <input name="area" required placeholder="Affected area" /><input name="expires_at" type="datetime-local" required />
+        <textarea name="headline" required placeholder="Headline"></textarea><textarea name="details" placeholder="Details, timing, impacts, population exposure…"></textarea>
+        <select name="severity"><option>watch</option><option>warning</option><option>emergency</option></select>
+        <button class="primary">Publish Alert</button><small class="form-status"></small>
+      </form>
+    </div>
+
+    <form id="outlookForm" class="admin-panel">
+      <h2>Optional Outlook Override</h2><p>You do NOT need to do this daily. Use it only when you want to add/override an NLS-specific area manually.</p>
+      <div class="split"><select name="day"><option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option></select>
+      <select name="hazard_type"><option value="landslide">Landslide</option><option value="avalanche">Avalanche</option><option value="both">Both</option></select>
+      <select name="probability"><option>5</option><option>10</option><option>20</option><option>30</option><option>50</option><option>70</option><option>90</option></select></div>
+      <input name="label" placeholder="Area label e.g. Central Appalachians" />
+      <div id="adminMap" class="map small"></div>
+      <button class="primary">Publish Drawn Polygon</button><small class="form-status"></small>
+    </form>
+
+    <form id="probForm" class="admin-panel">
+      <h2>Hourly / Daily Probability</h2>
+      <div class="split"><input name="area" placeholder="Town/county/area" required/><select name="hazard_type"><option value="landslide">Landslide</option><option value="avalanche">Avalanche</option></select></div>
+      <div class="split"><input name="valid_time" type="datetime-local" required/><input name="probability" type="number" min="0" max="100" value="10" required/></div>
+      <button class="primary">Publish Probability</button><small class="form-status"></small>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <b>NLS • National Land Sliding</b><span>Independent hazard-awareness project • Source links retained where available.</span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    for (const r of regs) r.unregister().catch(()=>{});
+  }).catch(()=>{});
+}
+</script>
+
+<script>
+// NLS CONFIGURATION
+// 1) Create a free Supabase project.
+// 2) Paste your Project URL and public anon key below.
+// 3) Run supabase-schema.sql in the Supabase SQL editor.
+// 4) Sign in once, then add your user UUID to public.admin_users (instructions in README).
+window.NLS_CONFIG = {
+  SUPABASE_URL: "PASTE_YOUR_SUPABASE_URL_HERE",
+  SUPABASE_ANON_KEY: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
+
+  // Public NASA COOLR landslide reports (GeoJSON).
+  // NLS refreshes this automatically in-browser.
+  NASA_COOLR_BASE:
+    "https://gis.earthdata.nasa.gov/gis05/rest/services/Landslides/COOLR_Reports_Points/FeatureServer/0/query",
+
+  NASA_LHASA_URL:
+    "https://gis.earthdata.nasa.gov/gis05/rest/services/Landslides/LHASA_Exposure/FeatureServer/0/query",
+
+  // Maximum NASA COOLR history loaded into the browser. Paginated automatically.
+  COOLR_MAX_RECORDS: 20000,
+  COOLR_PAGE_SIZE: 2000,
+
+  AUTO_REFRESH_MS: 120000,
+  DEFAULT_CENTER: [38.6, -96.0],
+  DEFAULT_ZOOM: 4
+};
+
+</script>
+<script>
+(() => {
+const C = window.NLS_CONFIG;
+const hasSupabase = C.SUPABASE_URL && !C.SUPABASE_URL.startsWith("PASTE_") && C.SUPABASE_ANON_KEY && !C.SUPABASE_ANON_KEY.startsWith("PASTE_");
+const db = hasSupabase ? window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY) : null;
+
+const AL = [
+ {n:0,name:"Trace / Minimal",desc:"Very small or low-impact movement.",items:["Little/no damage","Short runout or tiny debris","No meaningful disruption"]},
+ {n:1,name:"Minor",desc:"Small event with limited local effects.",items:["Minor debris or snow movement","Brief trail/road effects possible","Little to no structural damage"]},
+ {n:2,name:"Moderate",desc:"Noticeable event capable of localized damage.",items:["Road/trail blockage possible","Small structures or vehicles threatened","Rescue response may be needed"]},
+ {n:3,name:"Significant",desc:"Substantial event with damaging potential.",items:["Longer runout / larger volume","Structures, roads or utilities damaged","Serious travel disruption"]},
+ {n:4,name:"Major",desc:"Large, dangerous event with major impacts.",items:["Multiple structures/roads affected","Serious injuries possible","Broad local disruption"]},
+ {n:5,name:"Severe",desc:"Very large/destructive event.",items:["Major infrastructure damage","Multiple casualties possible","Large evacuation/rescue footprint"]},
+ {n:6,name:"Extreme",desc:"Exceptional event with catastrophic local effects.",items:["Community-scale impacts possible","Extreme runout/volume/speed","Major casualty or displacement potential"]},
+ {n:7,name:"Catastrophic",desc:"Highest NLS rating: extraordinary disaster-level event.",items:["Devastating populated-area impacts","Massive runout/volume or destructive force","Catastrophic infrastructure/casualty potential"]}
+];
+
+let events=[], alerts=[], outlooks=[], probs=[], nasaFeatures=[], lhasaFeatures=[], autoOutlooks=[];
+let maps={}, layers={events:[], outlooks:[]}, drawnGeoJSON=null;
+
+const demoEvents=[
+ {id:"demo1",hazard_type:"landslide",title:"Demo Hillside Slide",location_name:"Example County",state_region:"West Virginia",country:"United States",lat:38.1,lon:-81.8,al_rating:"AL-2",rating_notes:"Demo record shown until Supabase is configured.",source_url:"",media_urls:[],created_at:new Date().toISOString(),is_demo:true},
+ {id:"demo2",hazard_type:"avalanche",title:"Demo Mountain Avalanche",location_name:"Example Range",state_region:"Colorado",country:"United States",lat:39.1,lon:-106.3,al_rating:"AL-3",rating_notes:"Demo record shown until you publish real NLS events.",source_url:"",media_urls:[],created_at:new Date(Date.now()-3600000).toISOString(),is_demo:true}
+];
+const demoAlerts=[{id:"a1",product:"NLS Landslide Watch",area:"Demo Area",headline:"Conditions may support landslides.",details:"Demo product.",severity:"watch",expires_at:new Date(Date.now()+21600000).toISOString(),created_at:new Date().toISOString(),is_demo:true}];
+
+function esc(v=""){return String(v).replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[s]))}
+function ratingNum(r){return Math.max(0,Math.min(7,parseInt(String(r).replace(/\D/g,""))||0))}
+function intensityColor(n){return ["#8c8c8c","#2684ff","#36b55c","#ffd33d","#ff8c24","#e33131","#9a46d1","#102d8c"][n]}
+function fmtDate(d){try{return new Date(d).toLocaleString()}catch{return d||""}}
+function updateStamp(){document.getElementById("lastUpdate").textContent="Updated "+new Date().toLocaleTimeString()}
+function setPage(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+ document.getElementById("nav").classList.remove("open");
+ if(id==="map") setTimeout(()=>maps.main?.invalidateSize(),50);
+ if(id==="outlooks") setTimeout(()=>maps.outlook?.invalidateSize(),50);
+ if(id==="admin") setTimeout(()=>maps.admin?.invalidateSize(),50);
+}
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>setPage(b.dataset.page));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>setPage(b.dataset.go));
+document.getElementById("menuBtn").onclick=()=>document.getElementById("nav").classList.toggle("open");
+
+function initMaps(){
+ maps.main=L.map("mainMap").setView(C.DEFAULT_CENTER,C.DEFAULT_ZOOM);
+ maps.outlook=L.map("outlookMap").setView(C.DEFAULT_CENTER,C.DEFAULT_ZOOM);
+ maps.admin=L.map("adminMap").setView(C.DEFAULT_CENTER,C.DEFAULT_ZOOM);
+ for(const m of Object.values(maps)) L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(m);
+
+ const fg=new L.FeatureGroup().addTo(maps.admin);
+ maps.admin.addControl(new L.Control.Draw({edit:{featureGroup:fg},draw:{polyline:false,rectangle:false,circle:false,circlemarker:false,marker:false}}));
+ maps.admin.on(L.Draw.Event.CREATED,e=>{fg.clearLayers();fg.addLayer(e.layer);drawnGeoJSON=e.layer.toGeoJSON().geometry});
+ maps.admin.on(L.Draw.Event.EDITED,()=>{fg.eachLayer(l=>drawnGeoJSON=l.toGeoJSON().geometry)});
+}
+
+async function loadNASA(){
+ const all=[]; let offset=0; const max=Number(C.COOLR_MAX_RECORDS||20000), size=Number(C.COOLR_PAGE_SIZE||2000);
+ try{
+  while(offset<max){
+   const params=new URLSearchParams({
+     where:"1=1",outFields:"*",f:"geojson",
+     resultRecordCount:String(size),resultOffset:String(offset),
+     orderByFields:"event_date DESC"
+   });
+   const r=await fetch(C.NASA_COOLR_BASE+"?"+params.toString(),{cache:"no-store"});
+   if(!r.ok)throw new Error("COOLR HTTP "+r.status);
+   const j=await r.json(), batch=j.features||[];
+   all.push(...batch);
+   document.getElementById("coolrStatus").textContent=`${all.length.toLocaleString()} reports loaded`;
+   document.getElementById("historyStatus").textContent=`NASA history: ${all.length.toLocaleString()} loaded`;
+   if(batch.length<size)break;
+   offset+=size;
+  }
+  nasaFeatures=all;
+  document.getElementById("coolrStatus").textContent=`${all.length.toLocaleString()} reports loaded`;
+ }catch(e){
+  console.warn("NASA COOLR load failed",e);
+  document.getElementById("coolrStatus").textContent="Feed unavailable / retrying";
+ }
+}
+
+async function loadLHASA(){
+ try{
+  const params=new URLSearchParams({
+   where:"m_haz_pp_f > 0.01",outFields:"name_0,name_2,m_haz_pp_f,h_haz_pp_f,l_haz_pp_f",
+   returnGeometry:"true",outSR:"4326",f:"geojson",resultRecordCount:"2000"
+  });
+  const r=await fetch(C.NASA_LHASA_URL+"?"+params.toString(),{cache:"no-store"});
+  if(!r.ok)throw new Error("LHASA HTTP "+r.status);
+  const j=await r.json(); lhasaFeatures=j.features||[];
+  document.getElementById("lhasaStatus").textContent=`${lhasaFeatures.length.toLocaleString()} hazard areas loaded`;
+ }catch(e){
+  console.warn("NASA LHASA load failed",e);
+  document.getElementById("lhasaStatus").textContent="Guidance unavailable / retrying";
+ }
+}
+async function loadDB(){
+ if(!db){events=demoEvents;alerts=demoAlerts;outlooks=[];probs=[];document.getElementById("nlsStatus").textContent="Demo mode • connect Supabase";return}
+ const [e,a,o,p]=await Promise.all([
+   db.from("events").select("*").order("created_at",{ascending:false}).limit(1000),
+   db.from("alerts").select("*").order("created_at",{ascending:false}).limit(200),
+   db.from("outlooks").select("*").order("created_at",{ascending:false}).limit(200),
+   db.from("probabilities").select("*").order("valid_time",{ascending:true}).limit(1000)
+ ]);
+ events=e.data||[]; alerts=a.data||[]; outlooks=o.data||[]; probs=p.data||[];
+ document.getElementById("nlsStatus").textContent=`${events.length} rated events • live database`;
+}
+
+function renderScale(){
+ document.getElementById("scaleGrid").innerHTML=AL.map(x=>`<article class="scale-card"><header class="al${x.n}">AL-${x.n} • ${x.name}</header><div><b>${x.desc}</b><ul>${x.items.map(i=>`<li>${i}</li>`).join("")}</ul></div></article>`).join("");
+}
+function eventHTML(e){
+ const n=ratingNum(e.al_rating), media=Array.isArray(e.media_urls)?e.media_urls:(e.media_urls||"").split(/\n+/).filter(Boolean);
+ return `<article class="event-row">
+  <div class="al-badge al${n}">${esc(e.al_rating||"AL-0")}</div>
+  <div><div class="meta">${esc((e.hazard_type||"event").toUpperCase())} • ${fmtDate(e.created_at)}</div><h3>${esc(e.title)}</h3>
+  <p>${esc([e.location_name,e.state_region,e.country].filter(Boolean).join(", "))}</p><p>${esc(e.rating_notes||"No rating notes.")}</p>
+  <div class="meta">
+    ${e.estimated_volume?`Volume: ${esc(e.estimated_volume)} • `:""}
+    ${e.estimated_mass?`Mass: ${esc(e.estimated_mass)} • `:""}
+    ${e.speed?`Speed: ${esc(e.speed)} • `:""}
+    ${e.runout_distance?`Runout: ${esc(e.runout_distance)} • `:""}
+    ${e.vertical_drop?`Drop: ${esc(e.vertical_drop)} • `:""}
+    ${e.width?`Width: ${esc(e.width)} • `:""}
+    ${e.slope_angle?`Slope: ${esc(e.slope_angle)} • `:""}
+    ${e.depth?`Depth: ${esc(e.depth)} • `:""}
+    ${e.estimated_energy?`Energy: ${esc(e.estimated_energy)} • `:""}
+    Fatalities: ${Number(e.fatalities||0)} • Injuries: ${Number(e.injuries||0)}
+  </div>
+  <div class="meta">
+    Exposed: ${Number(e.people_exposed||0)} • Evacuated: ${Number(e.evacuated||0)} • Rescued: ${Number(e.rescued||0)} • Buried/Trapped: ${Number(e.buried||0)}
+    ${e.trigger?` • Trigger: ${esc(e.trigger)}`:""}
+    ${e.confidence?` • Confidence: ${esc(e.confidence)}`:""}
+    ${e.source_count!==undefined?` • Sources: ${Number(e.source_count||0)}`:""}
+  </div>
+  ${e.structures?`<p><b>Infrastructure:</b> ${esc(e.structures)}</p>`:""}
+  ${e.avalanche_details?`<p><b>Avalanche evidence:</b> ${esc(e.avalanche_details)}</p>`:""}
+  ${e.landslide_details?`<p><b>Landslide evidence:</b> ${esc(e.landslide_details)}</p>`:""}
+  <div class="media-links">${e.source_url?`<a href="${esc(e.source_url)}" target="_blank" rel="noopener">Primary source</a>`:""}${media.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">Media ${i+1}</a>`).join("")}</div></div>
+  <div class="meta">${e.is_demo?"DEMO":"NLS"}</div>
+ </article>`;
+}
+
+function suggestedALFromSource(p={}){
+ let score=0;
+ const size=String(p.landslide_size||"").toLowerCase();
+ if(size.includes("very_large")||size.includes("catastrophic"))score+=5;
+ else if(size.includes("large"))score+=4;
+ else if(size.includes("medium"))score+=3;
+ else if(size.includes("small"))score+=2;
+ else score+=1;
+ const deaths=Number(p.fatality_count||0), injuries=Number(p.injury_count||0);
+ if(deaths>=10)score+=3; else if(deaths>=1)score+=2;
+ if(injuries>=10)score+=2; else if(injuries>=1)score+=1;
+ const text=JSON.stringify(p).toLowerCase();
+ if(/destroyed|collapse|buried|blocked road|highway|homes|buildings/.test(text))score+=1;
+ const center=Math.max(0,Math.min(7,Math.round(score*.75)));
+ return [Math.max(0,center-1),Math.min(7,center+1)];
+}
+function updateRatingSuggestionFromForm(){
+ const f=document.getElementById("eventForm"); if(!f)return;
+ let score=0;
+ const fatal=Number(f.elements.fatalities?.value||0), inj=Number(f.elements.injuries?.value||0);
+ const exposed=Number(f.elements.people_exposed?.value||0), buried=Number(f.elements.buried?.value||0);
+ const txt=[f.elements.structures?.value,f.elements.estimated_volume?.value,f.elements.speed?.value,f.elements.runout_distance?.value,f.elements.rating_notes?.value].join(" ").toLowerCase();
+ if(fatal>=10)score+=5; else if(fatal>=1)score+=3;
+ if(inj>=10)score+=2; else if(inj>=1)score+=1;
+ if(buried>=5)score+=2; else if(buried>=1)score+=1;
+ if(exposed>=100)score+=2; else if(exposed>=10)score+=1;
+ if(/destroy|major|large|massive|highway|homes|buildings|rail/.test(txt))score+=2;
+ const c=Math.max(0,Math.min(7,Math.round(score*.8)));
+ const lo=Math.max(0,c-1), hi=Math.min(7,c+1);
+ document.getElementById("ratingSuggestion").textContent=`Current evidence suggests roughly AL-${lo}–AL-${hi}. Missing fields do not need to be filled.`;
+}
+function prefillNASAEvent(idx){
+ const f=nasaFeatures[idx]; if(!f)return;
+ const p=f.properties||{}, c=f.geometry?.coordinates||[];
+ const form=document.getElementById("eventForm");
+ setPage("admin");
+ setTimeout(()=>{
+   if(!form)return;
+   form.elements.hazard_type.value="landslide";
+   form.elements.title.value=p.event_title||"Reported landslide";
+   form.elements.location_name.value=p.gazetteer_closest_point||p.location_description||p.admin_division_name||"Reported area";
+   form.elements.state_region.value=p.admin_division_name||"";
+   form.elements.country.value=p.country_name||"";
+   if(c.length>=2){form.elements.lat.value=c[1];form.elements.lon.value=c[0]}
+   if(form.elements.fatalities)form.elements.fatalities.value=(p.fatality_count==null||p.fatality_count==="")?"":Number(p.fatality_count);
+   if(form.elements.injuries)form.elements.injuries.value=(p.injury_count==null||p.injury_count==="")?"":Number(p.injury_count);
+   form.elements.trigger.value=p.landslide_trigger||"";
+   form.elements.landslide_details.value=[p.landslide_category?`Type: ${p.landslide_category}`:"",p.landslide_size?`Reported size: ${p.landslide_size}`:""].filter(Boolean).join(" • ");
+   form.elements.source_url.value=p.source_link||"";
+   form.elements.media_urls.value=p.photo_link||"";
+   form.elements.rating_notes.value=p.event_description||"";
+   const [lo,hi]=suggestedALFromSource(p);
+   const suggested=Math.round((lo+hi)/2);
+   if(form.elements.al_rating)form.elements.al_rating.value=`AL-${suggested}`;
+   document.getElementById("ratingSuggestion").textContent=`NLS provisional suggestion: AL-${suggested} (reasonable range AL-${lo}–AL-${hi}). Unknown fields are already okay.`;
+   form.scrollIntoView({behavior:"smooth",block:"start"});
+ },250);
+}
+
+function renderEvents(){
+ const q=document.getElementById("eventSearch").value.toLowerCase(), type=document.getElementById("eventType").value, al=document.getElementById("eventAL").value;
+ const rated=events.filter(e=>(type==="all"||e.hazard_type===type)&&(al==="all"||e.al_rating===al)&&JSON.stringify(e).toLowerCase().includes(q));
+ let html=rated.map(eventHTML).join("");
+
+ // Include NASA landslide source records when not filtering for avalanches or a specific AL rating.
+ if(type!=="avalanche" && al==="all"){
+  const sourceRows=nasaFeatures.filter(f=>JSON.stringify(f.properties||{}).toLowerCase().includes(q)).slice(0,500);
+  html+=sourceRows.map(f=>{
+   const p=f.properties||{};
+   return `<article class="event-source-row"><div class="source-icon">NASA<br>COOLR</div><div>
+    <div class="meta">SOURCE RECORD • ${fmtDate(p.event_date)}</div>
+    <h3>${esc(p.event_title||"Reported landslide")}</h3>
+    <p>${esc([p.gazetteer_closest_point,p.admin_division_name,p.country_name].filter(Boolean).join(", "))}</p>
+    <p>${esc(p.event_description||"")}</p>
+    <div class="meta">${p.landslide_category?`Type: ${esc(p.landslide_category)} • `:""}${p.landslide_trigger?`Trigger: ${esc(p.landslide_trigger)} • `:""}${p.landslide_size?`Size: ${esc(p.landslide_size)} • `:""}Not yet assigned an NLS AL rating</div>
+    <div class="media-links">${p.source_link?`<a target="_blank" rel="noopener" href="${esc(p.source_link)}">Source</a>`:""}${p.photo_link?`<a target="_blank" rel="noopener" href="${esc(p.photo_link)}">Photo</a>`:""}
+    <button class="rate-source-btn" onclick="prefillNASAEvent(${nasaFeatures.indexOf(f)})">Rate this event</button></div>
+   </div></article>`;
+  }).join("");
+ }
+ document.getElementById("eventList").innerHTML=html||'<div class="card">No matching records.</div>';
+ document.getElementById("latestEvents").innerHTML=events.slice(0,4).map(e=>`<div class="card"><div class="al-badge al${ratingNum(e.al_rating)}">${esc(e.al_rating)}</div><h3>${esc(e.title)}</h3><p>${esc(e.location_name)}</p></div>`).join("");
+}
+["eventSearch","eventType","eventAL"].forEach(id=>document.getElementById(id).addEventListener("input",renderEvents));
+
+function alertHTML(a){
+ const sev=(a.severity||"watch").toLowerCase();
+ return `<article class="card alert-card ${esc(sev)}"><div class="product-title">${esc(a.product)}</div><h3>${esc(a.headline)}</h3><p><b>${esc(a.area)}</b></p><p>${esc(a.details||"")}</p><div class="meta">Expires ${fmtDate(a.expires_at)} • NLS independent product</div></article>`;
+}
+function renderAlerts(){
+ const active=alerts.filter(a=>!a.expires_at||new Date(a.expires_at)>new Date());
+ document.getElementById("alertsList").innerHTML=active.length?active.map(alertHTML).join(""):'<div class="card">No active NLS alerts.</div>';
+ document.getElementById("homeAlerts").innerHTML=active.length?active.slice(0,3).map(alertHTML).join(""):'<div class="card">No active NLS alerts.</div>';
+}
+
+function clearLayerList(arr){arr.forEach(x=>x.remove());arr.length=0}
+function renderMap(){
+ clearLayerList(layers.events);
+ const hz=document.getElementById("hazardFilter").value, hours=document.getElementById("timeFilter").value;
+ const showCoolr=document.getElementById("showCoolr").checked, showLhasa=document.getElementById("showLhasa").checked;
+ const cutoff=hours==="all"?0:Date.now()-Number(hours)*3600000;
+ let shown=0;
+
+ // NASA LHASA automatic hazard guidance polygons (behind event points).
+ if(showLhasa && hz!=="avalanche"){
+  for(const f of lhasaFeatures.slice(0,2000)){
+   const p=f.properties||{}, risk=Number(p.m_haz_pp_f||0);
+   const color=risk>0.25?"#a50f15":risk>0.05?"#de2d26":risk>0.01?"#fb6a4a":"#fcae91";
+   try{
+    const l=L.geoJSON(f,{style:{color:"transparent",weight:0,fillColor:color,fillOpacity:.14}})
+      .bindPopup(`<b>NASA LHASA guidance</b><br>${esc(p.name_2||"")}, ${esc(p.name_0||"")}<br>Model hazard/exposure index: ${risk.toFixed(3)}<br><small>Automatic NASA guidance • not an NLS alert</small>`)
+      .addTo(maps.main);
+    layers.events.push(l);
+   }catch{}
+  }
+ }
+
+ // Owner-rated NLS events.
+ for(const e of events){
+  if(hz!=="all"&&e.hazard_type!==hz)continue;
+  if(cutoff && new Date(e.created_at).getTime()<cutoff)continue;
+  if(!Number.isFinite(Number(e.lat))||!Number.isFinite(Number(e.lon)))continue;
+  const n=ratingNum(e.al_rating), marker=L.circleMarker([e.lat,e.lon],{radius:7+n,fillColor:intensityColor(n),color:"#111",weight:1.4,fillOpacity:.9})
+   .bindPopup(`<b>${esc(e.title)}</b><br>${esc(e.al_rating)} • ${esc(e.hazard_type)}<br>${esc(e.location_name||"")}<br><small>Owner-rated NLS event</small>`).addTo(maps.main);
+  layers.events.push(marker);shown++;
+ }
+
+ // NASA COOLR reported landslide history.
+ if(showCoolr && hz!=="avalanche"){
+  for(const f of nasaFeatures){
+   const c=f.geometry?.coordinates;if(!c||c.length<2)continue;
+   const p=f.properties||{}; const d=p.event_date||null;
+   if(cutoff&&d&&new Date(Number(d)||d).getTime()<cutoff)continue;
+   const sev=String(p.landslide_size||"").toLowerCase();
+   const rn=sev.includes("very_large")||sev.includes("catastrophic")?6:sev.includes("large")?5:sev.includes("medium")?3:sev.includes("small")?2:1;
+   const m=L.circleMarker([c[1],c[0]],{radius:4+Math.min(rn,5),fillColor:intensityColor(rn),color:"#444",weight:.8,fillOpacity:.52})
+    .bindPopup(`<b>${esc(p.event_title||"NASA COOLR landslide report")}</b><br>${esc(p.gazetteer_closest_point||p.location_description||p.admin_division_name||p.country_name||"")}<br>${p.landslide_category?`Type: ${esc(p.landslide_category)}<br>`:""}${p.landslide_trigger?`Trigger: ${esc(p.landslide_trigger)}<br>`:""}${p.landslide_size?`Reported size: ${esc(p.landslide_size)}<br>`:""}${p.fatality_count!=null?`Fatalities: ${esc(p.fatality_count)}<br>`:""}<small>NASA COOLR source record • NOT an NLS AL rating</small>${p.source_link?`<br><a target="_blank" rel="noopener" href="${esc(p.source_link)}">Original source</a>`:""}${p.photo_link?`<br><a target="_blank" rel="noopener" href="${esc(p.photo_link)}">Photo</a>`:""}`).addTo(maps.main);
+   layers.events.push(m);shown++;
+  }
+ }
+ document.getElementById("mapCount").textContent=`${shown.toLocaleString()} events shown`;
+}
+document.getElementById("hazardFilter").onchange=renderMap;document.getElementById("timeFilter").onchange=renderMap;
+document.getElementById("showCoolr").onchange=renderMap;document.getElementById("showLhasa").onchange=renderMap;
+document.getElementById("refreshBtn").onclick=refreshAll;
+document.getElementById("locateBtn").onclick=()=>navigator.geolocation?.getCurrentPosition(p=>maps.main.setView([p.coords.latitude,p.coords.longitude],10));
+
+const riskColors={5:"#d9f5d9",10:"#8ae68a",20:"#ffe56c",30:"#ffb13b",50:"#ff6a55",70:"#e74de0",90:"#7c42c9"};
+let selectedDay=1;
+function renderOutlooks(){
+ clearLayerList(layers.outlooks);
+
+ // Automatic NASA LHASA global hazard polygons.
+ for(const f of lhasaFeatures.slice(0,2000)){
+  const p=f.properties||{}, risk=Number(p.m_haz_pp_f||0);
+  const color=risk>0.25?"#a50f15":risk>0.05?"#de2d26":risk>0.01?"#fb6a4a":"#fcae91";
+  try{
+   const l=L.geoJSON(f,{style:{color:"transparent",weight:0,fillColor:color,fillOpacity:.16}})
+     .bindPopup(`<b>NASA LHASA automatic guidance</b><br>${esc(p.name_2||"")}, ${esc(p.name_0||"")}<br>Model index: ${risk.toFixed(3)}`)
+     .addTo(maps.outlook); layers.outlooks.push(l);
+  }catch{}
+ }
+
+ // Automatic local Day 1–3 outlook circle, generated from forecast data.
+ const auto=autoOutlooks.find(o=>o.day===selectedDay);
+ if(auto){
+  const max=Math.max(auto.landslide,auto.avalanche);
+  const c=max>=70?"#7c42c9":max>=50?"#ff6a55":max>=30?"#ffb13b":max>=20?"#ffe56c":max>=10?"#8ae68a":"#d9f5d9";
+  const circle=L.circle([auto.lat,auto.lon],{radius:35000,color:"#222",weight:2,fillColor:c,fillOpacity:.32})
+   .bindPopup(`<b>NLS automatic Day ${auto.day}</b><br>Landslide signal: ${auto.landslide}%<br>Avalanche signal: ${auto.avalanche}%<br><small>Experimental weather-derived guidance</small>`).addTo(maps.outlook);
+  layers.outlooks.push(circle);
+ }
+
+ // Optional owner overrides.
+ const list=outlooks.filter(o=>Number(o.day)===selectedDay);
+ for(const o of list){
+  if(!o.geometry)continue;
+  const l=L.geoJSON({type:"Feature",geometry:o.geometry,properties:{}},{style:{color:"#222",weight:2,fillColor:riskColors[o.probability]||"#ccc",fillOpacity:.42}})
+    .bindPopup(`<b>${esc(o.probability)}% ${esc(o.hazard_type)}</b><br>${esc(o.label||"NLS Owner Override")}<br><small>Owner-published NLS polygon</small>`).addTo(maps.outlook);
+  layers.outlooks.push(l);
+ }
+ document.getElementById("autoOutlookSummary").innerHTML=autoOutlooks.length?autoOutlooks.map(autoCardHTML).join(""):'<div class="card">Search a location above to generate automatic Day 1–3 local guidance. NASA LHASA global guidance still appears automatically.</div>';
+ document.getElementById("outlookDetails").innerHTML=list.length?list.map(o=>`<div class="card"><b>${esc(o.probability)}% ${esc(o.hazard_type)}</b><h3>${esc(o.label||"NLS Outlook Area")}</h3><div class="meta">Day ${o.day} • owner override</div></div>`).join(""):'<div class="card">No owner override for this day — nothing required from you.</div>';
+}
+document.querySelectorAll("#dayPicker button").forEach(b=>b.onclick=()=>{selectedDay=Number(b.dataset.day);document.querySelectorAll("#dayPicker button").forEach(x=>x.classList.toggle("active",x===b));renderOutlooks()});
+
+function renderDays(){
+ const names=["Today","Tomorrow","Day 3"];
+ const lhasaMax=lhasaFeatures.reduce((m,f)=>Math.max(m,Number(f.properties?.m_haz_pp_f||0)),0);
+ document.getElementById("dayCards").innerHTML=[1,2,3].map((day,i)=>{
+  const auto=autoOutlooks.find(o=>o.day===day);
+  const manual=outlooks.filter(o=>Number(o.day)===day).reduce((m,o)=>Math.max(m,Number(o.probability)||0),0);
+  if(auto){
+    const p=Math.max(auto.landslide,auto.avalanche);
+    return `<div class="day-card"><div class="meta">${names[i]}</div><div class="prob">${p}%</div><b>Landslide ${auto.landslide}% • Avalanche ${auto.avalanche}%</b><small>${esc(auto.label)}</small></div>`;
+  }
+  if(manual)return `<div class="day-card"><div class="meta">${names[i]}</div><div class="prob">${manual}%</div><b>Owner override</b></div>`;
+  return `<div class="day-card"><div class="meta">${names[i]}</div><div class="prob">AUTO</div><b>Global NASA guidance active</b><small>${lhasaFeatures.length?`${lhasaFeatures.length.toLocaleString()} LHASA hazard areas loaded`:"Loading automatic guidance…"}</small></div>`;
+ }).join("");
+}
+
+
+async function geocodePlace(name){
+ const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(name)}`,{headers:{"Accept":"application/json"}});
+ if(!r.ok)throw new Error("Place search failed");
+ const j=await r.json(); if(!j.length)throw new Error("Place not found");
+ return {lat:Number(j[0].lat),lon:Number(j[0].lon),name:j[0].display_name};
+}
+function dayRiskFromWeather(day, elev=0){
+ const rain=Number(day.precipitation_sum||0), snow=Number(day.snowfall_sum||0), gust=Number(day.wind_gusts_10m_max||0), tmax=Number(day.temperature_2m_max||0), tmin=Number(day.temperature_2m_min||0);
+ // Experimental NLS guidance — deliberately capped; not an official probability model.
+ let land=Math.min(70, Math.round((rain*1.6 + Math.max(0,rain-25)*1.2)/5)*5);
+ if(rain<2)land=0;
+ let avalanche=0;
+ if(elev>700 && snow>0){
+   avalanche=Math.min(70,Math.round((snow*1.8 + Math.max(0,gust-35)*.7 + (tmax>0&&tmin<0?12:0))/5)*5);
+ }
+ return {landslide:land,avalanche:avalanche,rain,snow,gust,tmax,tmin};
+}
+async function buildAutoOutlook(lat,lon,label){
+ const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum,snowfall_sum,temperature_2m_max,temperature_2m_min,wind_gusts_10m_max&current=elevation&forecast_days=4&timezone=auto`;
+ const r=await fetch(url);if(!r.ok)throw new Error("Forecast unavailable");
+ const w=await r.json(), d=w.daily||{}, elev=Number(w.elevation||0);
+ autoOutlooks=[];
+ for(let i=0;i<3;i++){
+   const raw={precipitation_sum:d.precipitation_sum?.[i]||0,snowfall_sum:d.snowfall_sum?.[i]||0,temperature_2m_max:d.temperature_2m_max?.[i],temperature_2m_min:d.temperature_2m_min?.[i],wind_gusts_10m_max:d.wind_gusts_10m_max?.[i]||0};
+   const risk=dayRiskFromWeather(raw,elev);
+   autoOutlooks.push({day:i+1,lat,lon,label,date:d.time?.[i],...risk});
+ }
+ maps.outlook.setView([lat,lon],8);
+ renderOutlooks();renderDays();
+}
+function autoCardHTML(o){
+ const max=Math.max(o.landslide,o.avalanche), c=riskColors[[5,10,20,30,50,70,90].reduce((a,b)=>Math.abs(b-max)<Math.abs(a-max)?b:a,5)]||"#aaa";
+ return `<div class="card auto-card" style="--risk:${c}"><div class="meta">DAY ${o.day} • ${esc(o.date||"")}</div><h3>${esc(o.label)}</h3>
+ <p><b>${o.landslide}% Experimental Landslide Signal</b><br><b>${o.avalanche}% Experimental Avalanche Signal</b></p>
+ <div class="meta">Forecast precip ${o.rain} mm • snowfall ${o.snow} cm • max gust ${o.gust} km/h</div>
+ <small>Weather-derived NLS guidance, not an official probability forecast.</small></div>`;
+}
+
+function renderLocal(area="Your Area"){
+ document.getElementById("localTitle").textContent=area;
+ let arr=probs.filter(p=>String(p.area||"").toLowerCase().includes(area.toLowerCase())).slice(0,24);
+ if(!arr.length){
+   arr=Array.from({length:12},(_,i)=>({valid_time:new Date(Date.now()+i*3600000).toISOString(),probability:0,hazard_type:"landslide"}));
+ }
+ document.getElementById("probabilityChart").innerHTML=arr.map(p=>`<div class="hour-block"><small>${new Date(p.valid_time).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}</small><b>${Number(p.probability)||0}%</b><span>${esc(p.hazard_type)}</span></div>`).join("");
+ document.getElementById("nearbyEvents").innerHTML=events.filter(e=>JSON.stringify(e).toLowerCase().includes(area.toLowerCase())).slice(0,6).map(e=>`<div class="card"><b>${esc(e.al_rating)}</b><h3>${esc(e.title)}</h3><p>${esc(e.location_name)}</p></div>`).join("")||'<div class="card">No matching rated events loaded.</div>';
+}
+document.getElementById("outlookPlaceSearch").onclick=async()=>{
+ const input=document.getElementById("outlookPlaceInput"), btn=document.getElementById("outlookPlaceSearch");
+ try{btn.textContent="Building…";const g=await geocodePlace(input.value.trim());await buildAutoOutlook(g.lat,g.lon,g.name)}
+ catch(e){alert(e.message)}finally{btn.textContent="Build 3-Day Outlook"}
+};
+document.getElementById("outlookGps").onclick=()=>navigator.geolocation?.getCurrentPosition(async p=>{
+ try{await buildAutoOutlook(p.coords.latitude,p.coords.longitude,"Your GPS area")}catch(e){alert(e.message)}
+});
+document.getElementById("placeSearch").onclick=()=>renderLocal(document.getElementById("placeInput").value.trim()||"Your Area");
+document.getElementById("useGps").onclick=()=>navigator.geolocation?.getCurrentPosition(p=>{maps.main.setView([p.coords.latitude,p.coords.longitude],9);renderLocal("GPS area");setPage("local")});
+
+async function isAdmin(){
+ if(!db)return false;
+ const {data:{user}}=await db.auth.getUser(); if(!user)return false;
+ const {data}=await db.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();
+ return !!data;
+}
+async function updateAuthUI(){
+ const ok=await isAdmin();
+ document.getElementById("adminControls").classList.toggle("hidden",!ok);
+ document.getElementById("authBox").classList.toggle("hidden",ok);
+ if(ok)setTimeout(()=>maps.admin.invalidateSize(),50);
+}
+document.getElementById("loginBtn").onclick=async()=>{
+ const el=document.getElementById("authMsg");
+ if(!db){el.textContent="Configure Supabase in config.js first.";return}
+ const email=document.getElementById("adminEmail").value.trim(); if(!email){el.textContent="Enter the owner email.";return}
+ const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});
+ el.textContent=error?error.message:"Magic sign-in link sent. Open it on this device.";
+};
+
+async function submitTable(form,table,transform=x=>x){
+ const status=form.querySelector(".form-status");status.textContent="Publishing…";
+ if(!db){status.textContent="Configure Supabase first.";return}
+ if(!(await isAdmin())){status.textContent="Owner authorization required.";return}
+ const obj=Object.fromEntries(new FormData(form).entries());
+ const final=transform(obj); const {error}=await db.from(table).insert(final);
+ status.textContent=error?error.message:"Published!";
+ if(!error){form.reset();await refreshAll()}
+}
+document.getElementById("eventForm").onsubmit=e=>{e.preventDefault();submitTable(e.currentTarget,"events",o=>({...o,
+  lat:Number(o.lat),lon:Number(o.lon),
+  fatalities:Number(o.fatalities||0),injuries:Number(o.injuries||0),
+  people_exposed:Number(o.people_exposed||0),evacuated:Number(o.evacuated||0),
+  rescued:Number(o.rescued||0),buried:Number(o.buried||0),
+  source_count:Number(o.source_count||0),
+  media_urls:(o.media_urls||"").split(/\n+/).filter(Boolean)
+}))};
+document.getElementById("alertForm").onsubmit=e=>{e.preventDefault();submitTable(e.currentTarget,"alerts",o=>({...o,expires_at:new Date(o.expires_at).toISOString()}))};
+document.getElementById("probForm").onsubmit=e=>{e.preventDefault();submitTable(e.currentTarget,"probabilities",o=>({...o,probability:Number(o.probability),valid_time:new Date(o.valid_time).toISOString()}))};
+document.getElementById("outlookForm").onsubmit=e=>{e.preventDefault();if(!drawnGeoJSON){e.currentTarget.querySelector(".form-status").textContent="Draw a polygon first.";return}submitTable(e.currentTarget,"outlooks",o=>({...o,day:Number(o.day),probability:Number(o.probability),geometry:drawnGeoJSON}))};
+
+async function refreshAll(){
+ await Promise.all([loadNASA(),loadLHASA(),loadDB()]);
+ renderScale();renderEvents();renderAlerts();renderMap();renderOutlooks();renderDays();renderLocal(document.getElementById("localTitle").textContent==="Choose an area"?"Your Area":document.getElementById("localTitle").textContent);updateStamp();
+}
+async function realtime(){
+ if(!db)return;
+ db.channel("nls-public-live")
+  .on("postgres_changes",{event:"*",schema:"public",table:"events"},refreshAll)
+  .on("postgres_changes",{event:"*",schema:"public",table:"alerts"},refreshAll)
+  .on("postgres_changes",{event:"*",schema:"public",table:"outlooks"},refreshAll)
+  .on("postgres_changes",{event:"*",schema:"public",table:"probabilities"},refreshAll)
+  .subscribe();
+ db.auth.onAuthStateChange(()=>setTimeout(updateAuthUI,200));
+}
+const ratingForm=document.getElementById("eventForm");
+if(ratingForm)ratingForm.addEventListener("input",updateRatingSuggestionFromForm);
+
+window.prefillNASAEvent=prefillNASAEvent;
+initMaps();
+refreshAll().then(()=>{
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      p=>buildAutoOutlook(p.coords.latitude,p.coords.longitude,"Your current area").catch(()=>{}),
+      ()=>{},
+      {enableHighAccuracy:false,timeout:7000,maximumAge:1800000}
+    );
+  }
+});
+realtime();updateAuthUI();setInterval(refreshAll,C.AUTO_REFRESH_MS);
+})();
+</script>
+</body>
+</html>
