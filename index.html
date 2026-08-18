@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#101820" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NLS" />
+  <title>National Land Sliding (NLS)</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="icon-192.png" alt="NLS icon" />
+    <div><strong>National Land Sliding</strong><span>NLS • Landslide & Avalanche Center</span></div>
+  </div>
+  <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
+</header>
+
+<nav id="nav" class="nav">
+  <button data-page="home" class="active">Home</button>
+  <button data-page="map">Live Map</button>
+  <button data-page="outlooks">1–3 Day Outlook</button>
+  <button data-page="alerts">Alerts</button>
+  <button data-page="events">All Events</button>
+  <button data-page="scale">AL Scale</button>
+  <button data-page="local">Local</button>
+  <button data-page="admin">Owner</button>
+</nav>
+
+<main>
+<section id="home" class="page active">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">GLOBAL • U.S.-PRIORITY</div>
+      <h1>National Land Sliding</h1>
+      <p>Live landslide and avalanche awareness, NLS outlooks, public event ratings, source links and owner-issued hazard products.</p>
+      <div class="hero-actions">
+        <button data-go="map" class="primary">Open Live Map</button>
+        <button data-go="local">Check My Area</button>
+      </div>
+    </div>
+    <div class="status-card">
+      <span class="status-dot"></span>
+      <b>Automatic updates enabled</b>
+      <small id="lastUpdate">Waiting for first refresh…</small>
+    </div>
+  </div>
+
+  <div class="notice">
+    <b>Important:</b> NLS products and AL ratings are independent/community products, not official government warnings.
+    Always follow local emergency management and official weather/geologic agencies.
+  </div>
+  <div class="source-grid">
+    <div class="source-card"><b>NASA COOLR</b><span id="coolrStatus">Loading landslide history…</span><small>Global reported landslide catalog</small></div>
+    <div class="source-card"><b>NASA LHASA</b><span id="lhasaStatus">Loading hazard guidance…</span><small>Near-real-time landslide hazard/exposure</small></div>
+    <div class="source-card"><b>NLS Database</b><span id="nlsStatus">Checking…</span><small>Owner-rated AL events and products</small></div>
+    <div class="source-card"><b>Avalanche Coverage</b><span>Owner/imported records</span><small>Public unrestricted global avalanche API unavailable</small></div>
+  </div>
+
+  <div class="section-head"><h2>Active NLS Alerts</h2><button data-go="alerts">View all</button></div>
+  <div id="homeAlerts" class="cards"></div>
+
+  <div class="section-head"><h2>Latest Rated Events</h2><button data-go="events">View archive</button></div>
+  <div id="latestEvents" class="cards"></div>
+
+  <div class="section-head">
+    <div><div class="eyebrow">AUTOMATIC LOCAL GUIDANCE</div><h2>Day 1–3 Outlook</h2></div>
+    <button data-go="outlooks" class="primary">View Automatic Outlook</button>
+  </div>
+  <p class="muted" id="homeOutlookHint">NLS builds this automatically. If location permission is available, it personalizes the outlook to your area; otherwise it still shows global NASA guidance.</p>
+  <div id="dayCards" class="day-grid"></div>
+</section>
+
+<section id="map" class="page">
+  <div class="section-head"><div><div class="eyebrow">NLS EVENT-INTENSITY MAP</div><h1>Live Landslide + Avalanche Map</h1></div></div>
+  <div class="map-toolbar">
+    <select id="hazardFilter"><option value="all">All hazards</option><option value="landslide">Landslides</option><option value="avalanche">Avalanches</option></select>
+    <select id="timeFilter"><option value="24">Past 24 hours</option><option value="168">Past 7 days</option><option value="720">Past 30 days</option><option value="8760">Past year</option><option value="all" selected>All loaded history</option></select>
+    <label class="toggle"><input id="showCoolr" type="checkbox" checked /> NASA reports</label>
+    <label class="toggle"><input id="showLhasa" type="checkbox" checked /> LHASA guidance</label>
+    <button id="locateBtn">◎ My Location</button>
+    <button id="refreshBtn">↻ Refresh</button>
+  </div>
+  <div class="map-stats"><b id="mapCount">0 events shown</b><span id="historyStatus">Loading history…</span></div>
+  <div id="mainMap" class="map"></div>
+  <div class="legend">
+    <span><i style="--c:#8c8c8c"></i>Very weak</span><span><i style="--c:#2684ff"></i>Weak</span>
+    <span><i style="--c:#36b55c"></i>Low</span><span><i style="--c:#ffd33d"></i>Average</span>
+    <span><i style="--c:#ff8c24"></i>Mid</span><span><i style="--c:#e33131"></i>High</span>
+    <span><i style="--c:#9a46d1"></i>Severe</span><span><i style="--c:#102d8c"></i>Extreme</span>
+  </div>
+  <p class="muted">This is an NLS event/intensity visualization, not meteorological radar. Automatic NASA reports and owner-rated NLS events can appear together.</p>
+</section>
+
+<section id="outlooks" class="page">
+  <div class="section-head"><div><div class="eyebrow">AUTOMATIC NLS HAZARD GUIDANCE</div><h1>Days 1–3</h1></div></div>
+  <div class="notice"><b>Automatic.</b> You do not build this outlook. NLS loads NASA LHASA guidance automatically and, when location is available, creates a local Day 1–3 experimental signal from forecast rain/snow conditions. Manual polygons are optional overrides only.</div>
+  <div class="local-search"><input id="outlookPlaceInput" placeholder="Optional: search another town, county, state or country" /><button id="outlookPlaceSearch">View Another Area</button><button id="outlookGps">Use My Area</button></div>
+  <div class="segmented" id="dayPicker"><button class="active" data-day="1">Day 1</button><button data-day="2">Day 2</button><button data-day="3">Day 3</button></div>
+  <div id="outlookMap" class="map"></div>
+  <div class="outlook-legend">
+    <span class="risk r5">5%</span><span class="risk r10">10%</span><span class="risk r20">20%</span><span class="risk r30">30%</span><span class="risk r50">50%</span><span class="risk r70">70%</span><span class="risk r90">90%</span>
+  </div>
+  <div id="autoOutlookSummary" class="cards"></div>
+  <h2>Owner Overrides <small class="muted">(optional)</small></h2>
+  <div id="outlookDetails" class="cards"></div>
+</section>
+
+<section id="alerts" class="page">
+  <div class="eyebrow">NLS PRODUCTS</div><h1>Watches, Warnings & Emergencies</h1>
+  <p class="muted">Emergency = exceptionally serious NLS product for high-end potential/occurrence threatening a populated area. It is not an official government emergency alert.</p>
+  <div id="alertsList" class="cards"></div>
+</section>
+
+<section id="events" class="page">
+  <div class="section-head"><div><div class="eyebrow">PUBLIC + SOURCE ARCHIVE</div><h1>Event Explorer</h1></div></div>
+  <div class="notice"><b>Coverage:</b> NLS loads a large paginated history from NASA COOLR for landslides plus owner-rated NLS records. “Every event” can never literally mean every landslide/avalanche on Earth because many events are never reported and avalanche databases are fragmented.</div>
+  <div class="filters">
+    <input id="eventSearch" placeholder="Search town, county, state, country…" />
+    <select id="eventType"><option value="all">All types</option><option value="landslide">Landslides</option><option value="avalanche">Avalanches</option></select>
+    <select id="eventAL"><option value="all">All ratings</option><option>AL-0</option><option>AL-1</option><option>AL-2</option><option>AL-3</option><option>AL-4</option><option>AL-5</option><option>AL-6</option><option>AL-7</option></select>
+  </div>
+  <div id="eventList" class="event-list"></div>
+</section>
+
+<section id="scale" class="page">
+  <div class="eyebrow">NLS RATING SYSTEM</div><h1>AL-0 → AL-7 Scale</h1>
+  <p>The AL scale is an NLS impact/severity rating for <b>both avalanches and landslides</b>. Ratings should consider size, speed, runout, structures/roads hit, injuries/fatalities, population exposure, displacement, rescue impact, infrastructure damage and source confidence.</p>
+  <div id="scaleGrid" class="scale-grid"></div>
+  <div class="notice"><b>Rating rule:</b> Only the authenticated NLS owner account can publish or change an AL rating. Visitors have public read-only access.</div>
+  <div class="admin-panel">
+    <h2>NLS Rating Evidence Checklist</h2>
+    <p>Before assigning a high AL rating, compare <b>physical intensity</b> and <b>real-world impact</b>. A huge remote slide may be physically extreme but have low human impact; a smaller event in a populated area may deserve a higher impact rating. NLS keeps the evidence visible so ratings can be reviewed later.</p>
+  </div>
+</section>
+
+<section id="local" class="page">
+  <div class="eyebrow">AREA DASHBOARD</div><h1>Your Area</h1>
+  <div class="local-search"><input id="placeInput" placeholder="Town, county, state or country" /><button id="placeSearch" class="primary">Search</button><button id="useGps">Use GPS</button></div>
+  <div id="localTitle" class="local-title">Choose an area</div>
+  <div id="probabilityChart" class="hourly"></div>
+  <h2>Nearby Events</h2><div id="nearbyEvents" class="cards"></div>
+</section>
+
+<section id="admin" class="page">
+  <div class="eyebrow">OWNER CONTROL CENTER</div><h1>NLS Admin</h1>
+  <div id="authBox" class="admin-panel">
+    <p>Sign in using the email account you configure as the NLS owner.</p>
+    <input id="adminEmail" type="email" placeholder="Owner email" /><button id="loginBtn" class="primary">Send magic sign-in link</button>
+    <small id="authMsg"></small>
+  </div>
+  <div id="adminControls" class="hidden">
+    <div class="admin-grid">
+      <form id="eventForm" class="admin-panel">
+        <h2>Rate / Add Event</h2>
+        <select name="hazard_type"><option value="landslide">Landslide</option><option value="avalanche">Avalanche</option></select>
+        <input name="title" required placeholder="Event title" />
+        <input name="location_name" required placeholder="Town / county / area" />
+        <div class="split"><input name="state_region" placeholder="State / region" /><input name="country" value="United States" placeholder="Country" /></div>
+        <div class="split"><input name="lat" type="number" step="any" required placeholder="Latitude" /><input name="lon" type="number" step="any" required placeholder="Longitude" /></div>
+        <div id="ratingHelper" class="rating-helper">
+          <div><b>NLS Quick Rating</b><span id="ratingSuggestion">Choose a source event and NLS will fill what it knows.</span></div>
+          <small>You do NOT need to know every injury, burial, speed, mass, or runout. Unknown information stays unknown.</small>
+        </div>
+
+        <label><b>Your final AL rating</b></label>
+        <select name="al_rating"><option>AL-0</option><option>AL-1</option><option>AL-2</option><option>AL-3</option><option>AL-4</option><option>AL-5</option><option>AL-6</option><option>AL-7</option></select>
+
+        <textarea name="rating_notes" placeholder="Optional note: why you chose this rating"></textarea>
+        <input name="source_url" type="url" placeholder="Primary source URL (auto-filled when available)" />
+        <textarea name="media_urls" placeholder="Photo/video links (auto-filled when available)"></textarea>
+
+        <details class="advanced-evidence">
+          <summary>Advanced evidence (optional)</summary>
+          <p class="muted">Only use these if the source actually reports them. Leaving them blank is correct when unknown.</p>
+          <div class="split"><input name="estimated_volume" placeholder="Volume" /><input name="estimated_mass" placeholder="Mass" /></div>
+          <div class="split"><input name="speed" placeholder="Speed" /><input name="runout_distance" placeholder="Runout" /></div>
+          <div class="split"><input name="vertical_drop" placeholder="Vertical drop" /><input name="width" placeholder="Width / area" /></div>
+          <div class="split"><input name="slope_angle" placeholder="Slope angle" /><input name="depth" placeholder="Depth" /></div>
+          <input name="estimated_energy" placeholder="Estimated energy" />
+          <div class="split"><input name="fatalities" type="number" min="0" placeholder="Fatalities if reported" /><input name="injuries" type="number" min="0" placeholder="Injuries if reported" /></div>
+          <div class="split"><input name="people_exposed" type="number" min="0" placeholder="People exposed if reported" /><input name="evacuated" type="number" min="0" placeholder="Evacuated if reported" /></div>
+          <div class="split"><input name="rescued" type="number" min="0" placeholder="Rescued if reported" /><input name="buried" type="number" min="0" placeholder="Buried/trapped if reported" /></div>
+          <input name="structures" placeholder="Structures / roads / rail / utilities affected" />
+          <input name="trigger" placeholder="Trigger if known" />
+          <input name="avalanche_details" placeholder="Avalanche-specific details if known" />
+          <input name="landslide_details" placeholder="Landslide-specific details if known" />
+          <div class="split">
+            <select name="confidence"><option value="low">Low confidence</option><option value="medium" selected>Medium confidence</option><option value="high">High confidence</option><option value="verified">Verified / multiple strong sources</option></select>
+            <input name="source_count" type="number" min="0" value="1" placeholder="Source count" />
+          </div>
+        </details>
+        <button class="primary">Publish Event</button><small class="form-status"></small>
+      </form>
+
+      <form id="alertForm" class="admin-panel">
+        <h2>Issue NLS Alert</h2>
+        <select name="product"><option>NLS Avalanche Watch</option><option>NLS Avalanche Warning</option><option>NLS Avalanche Emergency</option><option>NLS Landslide Watch</option><option>NLS Landslide Warning</option><option>NLS Landslide Emergency</option></select>
+        <input name="area" required placeholder="Affected area" /><input name="expires_at" type="datetime-local" required />
+        <textarea name="headline" required placeholder="Headline"></textarea><textarea name="details" placeholder="Details, timing, impacts, population exposure…"></textarea>
+        <select name="severity"><option>watch</option><option>warning</option><option>emergency</option></select>
+        <button class="primary">Publish Alert</button><small class="form-status"></small>
+      </form>
+    </div>
+
+    <form id="outlookForm" class="admin-panel">
+      <h2>Optional Outlook Override</h2><p>You do NOT need to do this daily. Use it only when you want to add/override an NLS-specific area manually.</p>
+      <div class="split"><select name="day"><option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option></select>
+      <select name="hazard_type"><option value="landslide">Landslide</option><option value="avalanche">Avalanche</option><option value="both">Both</option></select>
+      <select name="probability"><option>5</option><option>10</option><option>20</option><option>30</option><option>50</option><option>70</option><option>90</option></select></div>
+      <input name="label" placeholder="Area label e.g. Central Appalachians" />
+      <div id="adminMap" class="map small"></div>
+      <button class="primary">Publish Drawn Polygon</button><small class="form-status"></small>
+    </form>
+
+    <form id="probForm" class="admin-panel">
+      <h2>Hourly / Daily Probability</h2>
+      <div class="split"><input name="area" placeholder="Town/county/area" required/><select name="hazard_type"><option value="landslide">Landslide</option><option value="avalanche">Avalanche</option></select></div>
+      <div class="split"><input name="valid_time" type="datetime-local" required/><input name="probability" type="number" min="0" max="100" value="10" required/></div>
+      <button class="primary">Publish Probability</button><small class="form-status"></small>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <b>NLS • National Land Sliding</b><span>Independent hazard-awareness project • Source links retained where available.</span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
